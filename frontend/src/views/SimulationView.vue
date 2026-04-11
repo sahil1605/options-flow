@@ -46,7 +46,7 @@
         />
       </div>
 
-      <!-- Right Panel: Step2 环境搭建 -->
+      <!-- Right Panel: Step2 Environment setup -->
       <div class="panel-wrapper right" :style="rightPanelStyle">
         <Step2EnvSetup
           :simulationId="currentSimulationId"
@@ -155,13 +155,13 @@ const handleNextStep = (params = {}) => {
     addLog('Using automatically configured simulation rounds')
   }
   
-  // 构建路由参数
+  // Build routing parameters
   const routeParams = {
     name: 'SimulationRun',
     params: { simulationId: currentSimulationId.value }
   }
   
-  // 如果有自定义轮数，通过 query 参数传递
+  // If there is a custom number of rounds, pass it through the query parameter
   if (params.maxRounds) {
     routeParams.query = { maxRounds: params.maxRounds }
   }
@@ -180,33 +180,33 @@ const checkAndStopRunningSimulation = async () => {
   if (!currentSimulationId.value) return
   
   try {
-    // 先检查模拟环境是否存活
+    // First check whether the simulation environment is alive
     const envStatusRes = await getEnvStatus({ simulation_id: currentSimulationId.value })
     
     if (envStatusRes.success && envStatusRes.data?.env_alive) {
       addLog('Simulation environment detected, closing...')
       
-      // 尝试优雅关闭模拟环境
+      // Try to gracefully shut down the simulated environment
       try {
         const closeRes = await closeSimulationEnv({ 
           simulation_id: currentSimulationId.value,
-          timeout: 10  // 10秒超时
+          timeout: 10  // 10seconds timeout
         })
         
         if (closeRes.success) {
           addLog('✓ Simulation environment closed')
         } else {
           addLog(`Failed to close simulation environment: ${closeRes.error || 'Unknown Error'}`)
-          // 如果优雅关闭失败，尝试强制停止
+          // If graceful shutdown fails, try forcing a stop
           await forceStopSimulation()
         }
       } catch (closeErr) {
         addLog(`Exception closing simulation environment: ${closeErr.message}`)
-        // 如果优雅关闭异常，尝试强制停止
+        // If graceful shutdown exception occurs, try to force stop
         await forceStopSimulation()
       }
     } else {
-      // 环境未运行，但可能进程还在，检查模拟状态
+      // The environment is not running, but the process may still be there, check the simulation status
       const simRes = await getSimulation(currentSimulationId.value)
       if (simRes.success && simRes.data?.status === 'running') {
         addLog('Simulation status detected as running, stopping...')
@@ -214,8 +214,8 @@ const checkAndStopRunningSimulation = async () => {
       }
     }
   } catch (err) {
-    // 检查环境状态失败不影响后续流程
-    console.warn('检查模拟状态失败:', err)
+    // Failure to check the environment status will not affect subsequent processes
+    console.warn('Checking simulation status failed:', err)
   }
 }
 
@@ -251,7 +251,7 @@ const loadSimulationData = async () => {
           projectData.value = projRes.data
           addLog(`Project loaded successfully: ${projRes.data.project_id}`)
           
-          // 获取 graph 数据
+          // Get graph data
           if (projRes.data.graph_id) {
             await loadGraph(projRes.data.graph_id)
           }

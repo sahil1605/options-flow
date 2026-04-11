@@ -330,7 +330,7 @@ const startSimulation = () => {
   color: var(--black);
 }
 
-/* 顶部导航 */
+/* top navigation */
 .navbar {
   height: 60px;
   background: var(--black);

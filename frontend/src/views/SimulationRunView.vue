@@ -47,7 +47,7 @@
         />
       </div>
 
-      <!-- Right Panel: Step3 开始模拟 -->
+      <!-- Right Panel: Step3 Start simulation -->
       <div class="panel-wrapper right" :style="rightPanelStyle">
         <Step3Simulation
           :simulationId="currentSimulationId"
@@ -87,9 +87,9 @@ const viewMode = ref('split')
 
 // Data State
 const currentSimulationId = ref(route.params.simulationId)
-// 直接在初始化时从 query 参数获取 maxRounds，确保子组件能立即获取到值
+// Get maxRounds directly from the query parameter during initialization to ensure that the subcomponent can get the value immediately
 const maxRounds = ref(route.query.maxRounds ? parseInt(route.query.maxRounds) : null)
-const minutesPerRound = ref(30) // 默认每轮30分钟
+const minutesPerRound = ref(30) // Default is 30 minutes per round
 const projectData = ref(null)
 const graphData = ref(null)
 const graphLoading = ref(false)
@@ -152,7 +152,7 @@ const handleGoBack = async () => {
   stopGraphRefresh()
   
   try {
-    // 先尝试优雅关闭模拟环境
+    // First try to shut down the simulation environment gracefully
     const envStatusRes = await getEnvStatus({ simulation_id: currentSimulationId.value })
     
     if (envStatusRes.success && envStatusRes.data?.env_alive) {
@@ -177,7 +177,7 @@ const handleGoBack = async () => {
         }
       }
     } else {
-      // 环境未运行，检查是否需要停止进程
+      // The environment is not running, check if the process needs to be stopped
       if (isSimulating.value) {
         addLog('Stopping simulation process...')
         try {
@@ -192,13 +192,13 @@ const handleGoBack = async () => {
     addLog(`Exception closing simulation: ${err.message}`)
   }
   
-  // 返回到 Step 2 (环境搭建)
+  // Return to Step 2 (Environment setup)
   router.push({ name: 'Simulation', params: { simulationId: currentSimulationId.value } })
 }
 
 const handleNextStep = () => {
-  // Step3Simulation 组件会直接处理报告生成和路由跳转
-  // 这个方法仅作为备用
+  // Step3Simulation The component will directly handle report generation and routing jumps
+  // This method is only a backup
   addLog('Entering Step 4: Report Generation')
 }
 
@@ -207,12 +207,12 @@ const loadSimulationData = async () => {
   try {
     addLog(`Loading simulation data: ${currentSimulationId.value}`)
     
-    // 获取 simulation 信息
+    // Get simulation information
     const simRes = await getSimulation(currentSimulationId.value)
     if (simRes.success && simRes.data) {
       const simData = simRes.data
       
-      // 获取 simulation config 以获取 minutes_per_round
+      // Get simulation config to get minutes_per_round
       try {
         const configRes = await getSimulationConfig(currentSimulationId.value)
         if (configRes.success && configRes.data?.time_config?.minutes_per_round) {
@@ -223,14 +223,14 @@ const loadSimulationData = async () => {
         addLog(`Failed to get time config, using default: ${minutesPerRound.value} minutes/round`)
       }
       
-      // 获取 project 信息
+      // Get project information
       if (simData.project_id) {
         const projRes = await getProject(simData.project_id)
         if (projRes.success && projRes.data) {
           projectData.value = projRes.data
           addLog(`Project loaded: ${projRes.data.project_id}`)
           
-          // 获取 graph 数据
+          // Get graph data
           if (projRes.data.graph_id) {
             await loadGraph(projRes.data.graph_id)
           }
@@ -245,8 +245,8 @@ const loadSimulationData = async () => {
 }
 
 const loadGraph = async (graphId) => {
-  // 当正在模拟时，自动刷新不显示全屏 loading，以免闪烁
-  // 手动刷新或初始加载时显示 loading
+  // When simulating, auto-refresh does not display full-screen loading to avoid flickering
+  // Shown on manual refresh or initial load loading
   if (!isSimulating.value) {
     graphLoading.value = true
   }
@@ -278,7 +278,7 @@ let graphRefreshTimer = null
 const startGraphRefresh = () => {
   if (graphRefreshTimer) return
   addLog('Starting real-time graph refresh (30s)')
-  // 立即刷新一次，然后每30秒刷新
+  // Refresh immediately, then every 30 seconds
   graphRefreshTimer = setInterval(refreshGraph, 30000)
 }
 
@@ -301,7 +301,7 @@ watch(isSimulating, (newValue) => {
 onMounted(() => {
   addLog('SimulationRunView Initialization')
   
-  // 记录 maxRounds 配置（值已在初始化时从 query 参数获取）
+  // Logging the maxRounds configuration (the value has been obtained from the query parameter on initialization）
   if (maxRounds.value) {
     addLog(`Custom simulation rounds: ${maxRounds.value}`)
   }
